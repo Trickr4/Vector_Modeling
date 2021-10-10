@@ -10,7 +10,68 @@
 
 #include <cstdio>
 
-bool toggle_draw = false;
+
+// Global Variables
+    bool toggle_draw = false;
+    int posx = 0, posy = 0, posz = 0;
+    int count;
+
+struct Quad
+{
+    int x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+    float r, g, b;
+    int state;
+    int total;
+}; Quad Q[100];
+
+void addQuad()
+{
+    Q[0].state++;
+    if (Q[0].state > 4)
+        Q[0].state = 0;
+    int st = Q[0].state;
+
+    if (st == 1)
+    {
+        Q[0].total++;
+        count = Q[0].total;
+        Q[count].x1 = posx;
+        Q[count].y1 = posy;
+        Q[count].z1 = posz;
+    }
+    if (st == 1 || st == 2)
+    {
+        Q[count].x2 = posx;
+        Q[count].y2 = posy;
+        Q[count].z2 = posz;
+    }
+    if (st == 1||st == 2|| st == 3)
+    {
+        Q[count].x3 = posx;
+        Q[count].y3 = posy;
+        Q[count].z3 = posz;
+    }
+    if (st == 1 || st == 2 || st == 3 || st == 4)
+    {
+        Q[count].x4 = posx;
+        Q[count].y4 = posy;
+        Q[count].z4 = posz;
+    }
+}
+
+void drawQuad()
+{
+    for (int i = 1; i < Q[0].total + 1; i++)
+    {
+        glBegin(GL_QUADS);
+        glColor3f(Q[i].r, Q[i].g, Q[i].b);
+        glVertex3f(Q[i].x1, Q[i].y1, Q[i].z1);
+        glVertex3f(Q[i].x2, Q[i].y2, Q[i].z2);
+        glVertex3f(Q[i].x3, Q[i].y3, Q[i].z3);
+        glVertex3f(Q[i].x4, Q[i].y4, Q[i].z4);
+        glEnd();
+    }
+}
 
 void controls(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -20,6 +81,13 @@ void controls(GLFWwindow* window, int key, int scancode, int action, int mods)
             glfwSetWindowShouldClose(window, GL_TRUE);
         if (key == GLFW_KEY_1)
             toggle_draw = true;
+        if (key == GLFW_KEY_W) posz -= 1;
+        if (key == GLFW_KEY_S) posz += 1;
+        if (key == GLFW_KEY_A) posx -= 1;
+        if (key == GLFW_KEY_D) posx += 1;
+        if (key == GLFW_KEY_Q) posy += 1;
+        if (key == GLFW_KEY_E) posy -= 1;
+        if (key == GLFW_KEY_SPACE) addQuad();
     }
 }
 
@@ -87,36 +155,38 @@ void drawCube()
 {
     GLfloat vertices[] =
     {
-        -1, -1, -1,   -1, -1,  1,   -1,  1,  1,   -1,  1, -1,
-        1, -1, -1,    1, -1,  1,    1,  1,  1,    1,  1, -1,
-        -1, -1, -1,   -1, -1,  1,    1, -1,  1,    1, -1, -1,
-        -1,  1, -1,   -1,  1,  1,    1,  1,  1,    1,  1, -1,
-        -1, -1, -1,   -1,  1, -1,    1,  1, -1,    1, -1, -1,
-        -1, -1,  1,   -1,  1,  1,    1,  1,  1,    1, -1,  1
+        -0.2, -0.2, -0.2,   -0.2, -0.2,  0.2,   -0.2,  0.2,  0.2,   -0.2,  0.2, -0.2,
+        0.2, -0.2, -0.2,    0.2, -0.2,  0.2,    0.2,  0.2,  0.2,    0.2,  0.2, -0.2,
+        -0.2, -0.2, -0.2,   -0.2, -0.2,  0.2,    0.2, -0.2,  0.2,    0.2, -0.2, -0.2,
+        -0.2,  0.2, -0.2,   -0.2,  0.2,  0.2,    0.2,  0.2,  0.2,    0.2,  0.2, -0.2,
+        -0.2, -0.2, -0.2,   -0.2,  0.2, -0.2,    0.2,  0.2, -0.2,    0.2, -0.2, -0.2,
+        -0.2, -0.2,  0.2,   -0.2,  0.2,  0.2,    0.2,  0.2,  0.2,    0.2, -0.2,  0.2
     };
 
     GLfloat colors[] =
     {
-        0, 0, 0,   0, 0, 1,   0, 1, 1,   0, 1, 0,
-        1, 0, 0,   1, 0, 1,   1, 1, 1,   1, 1, 0,
-        0, 0, 0,   0, 0, 1,   1, 0, 1,   1, 0, 0,
-        0, 1, 0,   0, 1, 1,   1, 1, 1,   1, 1, 0,
-        0, 0, 0,   0, 1, 0,   1, 1, 0,   1, 0, 0,
-        0, 0, 1,   0, 1, 1,   1, 1, 1,   1, 0, 1
+        1, 1, 1,   1, 1, 1,   1, 1, 1,   1, 1, 1,
+        1, 1, 1,   1, 1, 1,   1, 1, 1,   1, 1, 1,
+        1, 1, 1,   1, 1, 1,   1, 1, 1,   1, 1, 1,
+        1, 1, 1,   1, 1, 1,   1, 1, 1,   1, 1, 1,
+        1, 1, 1,   1, 1, 1,   1, 1, 1,   1, 1, 1,
+        1, 1, 1,   1, 1, 1,   1, 1, 1,   1, 1, 1
     };
 
     static float alpha = 0;
     //attempt to rotate cube
     //glRotatef(alpha, 0, 1, 0);
-
+    glTranslatef(posx, posy, posz);
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, vertices);
     glColorPointer(3, GL_FLOAT, 0, colors);
 
+    
     /* Send data : 24 vertices */
     glDrawArrays(GL_QUADS, 0, 24);
+   
 
     /* Cleanup states */
     glDisableClientState(GL_COLOR_ARRAY);
@@ -136,12 +206,12 @@ static void display(GLFWwindow* window)
         
 
         // Draw stuff
-        glClearColor((float)0, (float)0, (float)0, (float)1.0);
+        glClearColor((float)0.3, (float)0.3, (float)0.3, (float)1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        gluPerspective(35, windowWidth / windowHeight, 0.1f, 1000.0f);
+        gluPerspective(35, 1.0f, 0.1f, 1000.0f);
 
         glMatrixMode(GL_MODELVIEW_MATRIX);
         glTranslatef(-13, 0, -45);
@@ -151,6 +221,8 @@ static void display(GLFWwindow* window)
             //drawCube();
 
             drawGrid();
+            drawQuad();
+            drawCube();
             
             glfwSwapBuffers(window);
             toggle_draw = false;
